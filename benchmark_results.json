@@ -1,0 +1,340 @@
+{
+  "strategies": {
+    "static": {
+      "strategy": "static",
+      "total_samples": 1500,
+      "server_total_crashes": 2,
+      "adwin_alarms_count": 1,
+      "adwin_triggers": [
+        {
+          "step": 1206,
+          "timestamp": 1207.0,
+          "adwin_mean": 0.32,
+          "rolling_50": 0.42
+        }
+      ],
+      "retraining_events": [
+        {
+          "step": 1182,
+          "timestamp": 1183.0,
+          "strategy": "static",
+          "hanging_sockets_harvested": 20,
+          "verified_benign_preserved": 50,
+          "weight_shift_l2": 0.0,
+          "retrain_stats": {
+            "note": "Static model - no retraining executed"
+          }
+        }
+      ],
+      "overall_metrics": {
+        "accuracy": 0.9033333333333333,
+        "precision": 0.9723756906077348,
+        "recall": 0.5569620253164557,
+        "f1_score": 0.7082494969818912,
+        "fpr": 0.004222972972972973,
+        "fnr": 0.4430379746835443,
+        "tp": 176,
+        "fp": 5,
+        "tn": 1179,
+        "fn": 140,
+        "total_samples": 1500
+      },
+      "pre_drift_metrics": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "fpr": 0.0,
+        "fnr": 0.0,
+        "tp": 72,
+        "fp": 0,
+        "tn": 408,
+        "fn": 0,
+        "total_samples": 480
+      },
+      "surge_phase_metrics": {
+        "accuracy": 0.8804597701149425,
+        "precision": 0.9456521739130435,
+        "recall": 0.46774193548387094,
+        "f1_score": 0.6258992805755395,
+        "fpr": 0.007309941520467836,
+        "fnr": 0.532258064516129,
+        "tp": 87,
+        "fp": 5,
+        "tn": 679,
+        "fn": 99,
+        "total_samples": 870
+      },
+      "post_retrain_metrics": {
+        "accuracy": 0.7266666666666667,
+        "precision": 1.0,
+        "recall": 0.29310344827586204,
+        "f1_score": 0.4533333333333333,
+        "fpr": 0.0,
+        "fnr": 0.7068965517241379,
+        "tp": 17,
+        "fp": 0,
+        "tn": 92,
+        "fn": 41,
+        "total_samples": 150
+      },
+      "top_model_weights": [
+        [
+          "packet_rate",
+          0.8297978488941169
+        ],
+        [
+          "ack_ratio",
+          -0.8280131473627703
+        ],
+        [
+          "dest_port_entropy",
+          -0.8177590492181097
+        ],
+        [
+          "byte_rate",
+          0.8092610721676111
+        ],
+        [
+          "syn_ratio",
+          0.7875878559286152
+        ]
+      ]
+    },
+    "new_only": {
+      "strategy": "new_only",
+      "total_samples": 1500,
+      "server_total_crashes": 1,
+      "adwin_alarms_count": 0,
+      "adwin_triggers": [],
+      "retraining_events": [
+        {
+          "step": 1182,
+          "timestamp": 1183.0,
+          "strategy": "new_only",
+          "hanging_sockets_harvested": 20,
+          "verified_benign_preserved": 50,
+          "weight_shift_l2": 1.4871,
+          "retrain_stats": {
+            "new_only_loss": 0.42137938715372597,
+            "total_samples_trained": 23
+          }
+        }
+      ],
+      "overall_metrics": {
+        "accuracy": 0.7993333333333333,
+        "precision": 0.512396694214876,
+        "recall": 0.9810126582278481,
+        "f1_score": 0.6731813246471227,
+        "fpr": 0.2491554054054054,
+        "fnr": 0.0189873417721519,
+        "tp": 310,
+        "fp": 295,
+        "tn": 889,
+        "fn": 6,
+        "total_samples": 1500
+      },
+      "pre_drift_metrics": {
+        "accuracy": 0.7708333333333334,
+        "precision": 0.3956043956043956,
+        "recall": 1.0,
+        "f1_score": 0.5669291338582677,
+        "fpr": 0.2696078431372549,
+        "fnr": 0.0,
+        "tp": 72,
+        "fp": 110,
+        "tn": 298,
+        "fn": 0,
+        "total_samples": 480
+      },
+      "surge_phase_metrics": {
+        "accuracy": 0.8103448275862069,
+        "precision": 0.5304347826086957,
+        "recall": 0.9838709677419355,
+        "f1_score": 0.6892655367231639,
+        "fpr": 0.23684210526315788,
+        "fnr": 0.016129032258064516,
+        "tp": 183,
+        "fp": 162,
+        "tn": 522,
+        "fn": 3,
+        "total_samples": 870
+      },
+      "post_retrain_metrics": {
+        "accuracy": 0.8266666666666667,
+        "precision": 0.7051282051282052,
+        "recall": 0.9482758620689655,
+        "f1_score": 0.8088235294117648,
+        "fpr": 0.25,
+        "fnr": 0.05172413793103448,
+        "tp": 55,
+        "fp": 23,
+        "tn": 69,
+        "fn": 3,
+        "total_samples": 150
+      },
+      "top_model_weights": [
+        [
+          "src_ip_entropy",
+          1.2578659725297683
+        ],
+        [
+          "dest_port_entropy",
+          -1.0785398458636353
+        ],
+        [
+          "packet_size_std",
+          -0.6026340548428638
+        ],
+        [
+          "packet_size_mean",
+          -0.4958019854273656
+        ],
+        [
+          "byte_rate",
+          0.41014571161547325
+        ]
+      ]
+    },
+    "balanced_mixture": {
+      "strategy": "balanced_mixture",
+      "total_samples": 1500,
+      "server_total_crashes": 1,
+      "adwin_alarms_count": 1,
+      "adwin_triggers": [
+        {
+          "step": 1216,
+          "timestamp": 1217.0,
+          "adwin_mean": 0.32,
+          "rolling_50": 0.38
+        }
+      ],
+      "retraining_events": [
+        {
+          "step": 1182,
+          "timestamp": 1183.0,
+          "strategy": "balanced_mixture",
+          "hanging_sockets_harvested": 20,
+          "verified_benign_preserved": 50,
+          "weight_shift_l2": 3.0544,
+          "retrain_stats": {
+            "mixture_loss": 0.05505051834343481,
+            "total_samples_trained": 1850
+          }
+        }
+      ],
+      "overall_metrics": {
+        "accuracy": 0.5366666666666666,
+        "precision": 0.3125618199802176,
+        "recall": 1.0,
+        "f1_score": 0.4762622456669178,
+        "fpr": 0.5869932432432432,
+        "fnr": 0.0,
+        "tp": 316,
+        "fp": 695,
+        "tn": 489,
+        "fn": 0,
+        "total_samples": 1500
+      },
+      "pre_drift_metrics": {
+        "accuracy": 0.5104166666666666,
+        "precision": 0.23452768729641693,
+        "recall": 1.0,
+        "f1_score": 0.37994722955145116,
+        "fpr": 0.5759803921568627,
+        "fnr": 0.0,
+        "tp": 72,
+        "fp": 235,
+        "tn": 173,
+        "fn": 0,
+        "total_samples": 480
+      },
+      "surge_phase_metrics": {
+        "accuracy": 0.5413793103448276,
+        "precision": 0.31794871794871793,
+        "recall": 1.0,
+        "f1_score": 0.4824902723735408,
+        "fpr": 0.5833333333333334,
+        "fnr": 0.0,
+        "tp": 186,
+        "fp": 399,
+        "tn": 285,
+        "fn": 0,
+        "total_samples": 870
+      },
+      "post_retrain_metrics": {
+        "accuracy": 0.5933333333333334,
+        "precision": 0.48739495798319327,
+        "recall": 1.0,
+        "f1_score": 0.655367231638418,
+        "fpr": 0.6630434782608695,
+        "fnr": 0.0,
+        "tp": 58,
+        "fp": 61,
+        "tn": 31,
+        "fn": 0,
+        "total_samples": 150
+      },
+      "top_model_weights": [
+        [
+          "dest_port_entropy",
+          -2.9767448959088805
+        ],
+        [
+          "src_ip_entropy",
+          0.8863062693351269
+        ],
+        [
+          "flow_duration",
+          0.6025693303543845
+        ],
+        [
+          "inter_arrival_time_mean",
+          0.5535789919399868
+        ],
+        [
+          "packet_rate",
+          0.5478522304389561
+        ]
+      ]
+    }
+  },
+  "window_sensitivity": {
+    "100": {
+      "window": 100,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0,
+      "fpr": 0.0,
+      "latency_ms": 266.68810844421387
+    },
+    "300": {
+      "window": 300,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0,
+      "fpr": 0.0,
+      "latency_ms": 269.30689811706543
+    },
+    "500": {
+      "window": 500,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0,
+      "fpr": 0.0,
+      "latency_ms": 266.51787757873535
+    },
+    "1000": {
+      "window": 1000,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "precision": 1.0,
+      "f1": 1.0,
+      "fpr": 0.0,
+      "latency_ms": 266.72816276550293
+    }
+  }
+}
