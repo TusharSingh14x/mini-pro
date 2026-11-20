@@ -1,0 +1,65 @@
+{
+  "wave_summary": {
+    "Wave 1 (SYN Flood)": {
+      "samples": 500,
+      "accuracy": 100.0,
+      "recall": 100.0,
+      "precision": 100.0,
+      "fpr": 0.0,
+      "tp": 63,
+      "fp": 0,
+      "tn": 437,
+      "fn": 0
+    },
+    "Wave 2 (Slowloris)": {
+      "samples": 900,
+      "accuracy": 95.33,
+      "recall": 95.05,
+      "precision": 87.19,
+      "fpr": 4.57,
+      "tp": 211,
+      "fp": 31,
+      "tn": 647,
+      "fn": 11
+    },
+    "Wave 3 (POST Jitter)": {
+      "samples": 1100,
+      "accuracy": 97.91,
+      "recall": 95.86,
+      "precision": 96.78,
+      "fpr": 1.27,
+      "tp": 301,
+      "fp": 10,
+      "tn": 776,
+      "fn": 13
+    }
+  },
+  "overall": {
+    "total_samples": 2500,
+    "accuracy": 97.4,
+    "recall": 95.99,
+    "precision": 93.34,
+    "fpr": 2.16,
+    "total_crashes": 2,
+    "crashes_steps": [
+      539,
+      1438
+    ]
+  },
+  "retrain_events": [
+    {
+      "step": 539,
+      "wave": "Wave 2 (Slowloris)",
+      "harvested_sockets": 17,
+      "total_learned_attacks": 17,
+      "latency_ms": 24.26
+    },
+    {
+      "step": 1438,
+      "wave": "Wave 3 (POST Jitter)",
+      "harvested_sockets": 17,
+      "total_learned_attacks": 34,
+      "latency_ms": 24.79
+    }
+  ]
+}

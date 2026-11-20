@@ -80,9 +80,13 @@ class ClosedLoopSimulationEngine:
         self.admin_drift_override: Optional[bool] = None
         self.has_retrained: bool = False
 
-    def bootstrap_baseline(self, num_samples: int = 1200):
-        """Generates historical baseline data and pre-trains initial model."""
-        self.baseline_dataset = self.generator.generate_initial_training_dataset(num_samples=num_samples)
+    def bootstrap_baseline(self, num_samples: int = 300):
+        """Generates or loads historical baseline data and pre-trains initial model."""
+        if self.cic_loader:
+            # Load pre-drift historical baseline flows from Canadian University dataset (Phase 1: 11:05 - 11:10)
+            self.baseline_dataset = list(self.cic_loader.stream_flows(max_records=min(num_samples, 300)))
+        else:
+            self.baseline_dataset = self.generator.generate_initial_training_dataset(num_samples=num_samples)
         X_train = [f.to_vector(self.feature_names) for f in self.baseline_dataset]
         y_train = [f.label for f in self.baseline_dataset]
         fit_info = self.model.fit_initial(X_train, y_train, epochs=40)

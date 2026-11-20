@@ -47,7 +47,7 @@ class AdminInteractiveSession:
         print("  ADAPTIVE DDoS DRIFT RETRAINING — INTERACTIVE JURY CONTROLLER")
         print("  Closed-Loop Feedback Architecture | Zero Data Leakage Implementation")
         print("=" * 78 + f"{C_RESET}")
-        print(f"{C_DIM}Strategy: {C_BOLD}{self.strategy.upper()}{C_RESET} | Presenters: Eshan Jogwar & Tushar Singh\n")
+        print(f"{C_DIM}Strategy: {C_BOLD}{self.strategy.upper()}{C_RESET} | Presenters: Tushar Singh, Eshan Jogwar & Rudra\n")
 
     def print_help(self):
         print(f"{C_BOLD}Available Interactive Admin Commands:{C_RESET}")
@@ -167,6 +167,35 @@ class AdminInteractiveSession:
 
         print(f"{C_GREEN}[✓] Progressive Retraining Complete. Decision boundary successfully updated!{C_RESET}\n")
 
+    def show_explain(self):
+        if not self.engine.flow_history:
+            print("[!] No flows processed yet. Run a step first.")
+            return
+        last_flow = self.engine.flow_history[-1]
+        x_raw = last_flow.to_vector(self.engine.feature_names)
+        exp = self.engine.model.explain(x_raw, top_k=5)
+        print(f"\n{C_CYAN}{C_BOLD}--- EXPLAINABLE AI (XAI) DECISION BREAKDOWN ---{C_RESET}")
+        print(f"Flow #{last_flow.flow_id} | Attack Type: {last_flow.attack_type}")
+        print(f"Decision: {C_BOLD}{exp['decision']}{C_RESET} | Posterior P(DDoS): {exp['probability']:.4f}")
+        print(f"Base Bias: {exp['base_bias']:.4f} | Total Logit z: {exp['logit_z']:.4f}\n")
+        print(f"{'Feature':<25} | {'Raw Value':<10} | {'Weight':<8} | {'Impact':<8} | {'% Contrib':<10} | {'Supports'}")
+        print("-" * 78)
+        for item in exp["top_features"]:
+            supp = f"{C_RED}ATTACK{C_RESET}" if item["supports_attack"] else f"{C_GREEN}BENIGN{C_RESET}"
+            print(f"{item['feature']:<25} | {item['raw_value']:<10} | {item['weight']:<8} | {item['attribution']:<8} | {item['percentage_impact']:<9}% | {supp}")
+        print("-" * 78)
+        print(f"{C_BOLD}Summary:{C_RESET} {exp['summary']}\n")
+
+    def export_defense(self):
+        from active_defense import ActiveDefenseKernel
+        kernel = ActiveDefenseKernel(target_port=80, conn_limit=5)
+        res = kernel.export_defense_package(".")
+        print(f"\n{C_GREEN}{C_BOLD}--- ACTIVE DEFENSE KERNEL RULES EXPORTED ---{C_RESET}")
+        print(f"  • Linux Firewall Script : {res['firewall_script']}")
+        print(f"  • eBPF / XDP C Source   : {res['ebpf_source']}")
+        print(f"  • Hardware Offload      : {res['line_rate_latency']}")
+        print(f"  • CPU Overhead Drop     : {res['cpu_overhead_reduction']}\n")
+
     def run_interactive_loop(self):
         self.print_banner()
         self.print_help()
@@ -215,6 +244,12 @@ class AdminInteractiveSession:
 
             elif cmd == "leakage":
                 self.audit_leakage()
+
+            elif cmd == "explain":
+                self.show_explain()
+
+            elif cmd == "defense":
+                self.export_defense()
 
             elif cmd == "help":
                 self.print_help()

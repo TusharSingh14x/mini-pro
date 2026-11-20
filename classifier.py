@@ -319,3 +319,160 @@ class OnlineLogisticRegression:
             "total_samples": total
         }
 
+    def explain(self, x_raw: List[float], top_k: int = 5) -> Dict:
+        """
+        Explainable AI (XAI) Dynamic Feature Attribution:
+        Decomposes classification logit into exact per-feature contributions:
+        logit(p) = bias + sum(w_j * x_norm_j).
+        Returns human-readable explanation and percentage attributions.
+        """
+        x_norm = self.scaler.transform_row(x_raw)
+        p_ddos = self.predict_proba_raw(x_norm)
+        pred_label = 1 if p_ddos >= 0.50 else 0
+        decision_str = "DDoS Attack" if pred_label == 1 else "Benign Traffic"
+
+        z = self.bias + sum(w * x for w, x in zip(self.weights, x_norm))
+        total_abs = sum(abs(w * x) for w, x in zip(self.weights, x_norm)) + 1e-8
+
+        contributions = []
+        for name, raw_v, norm_v, w in zip(self.feature_names, x_raw, x_norm, self.weights):
+            phi = w * norm_v
+            pct = (abs(phi) / total_abs) * 100.0
+            contributions.append({
+                "feature": name,
+                "raw_value": round(raw_v, 3),
+                "normalized_value": round(norm_v, 3),
+                "weight": round(w, 4),
+                "attribution": round(phi, 4),
+                "percentage_impact": round(pct, 1),
+                "supports_attack": phi > 0
+            })
+
+        contributions.sort(key=lambda item: abs(item["attribution"]), reverse=True)
+        top_attribs = contributions[:top_k]
+
+        reasons = []
+        for item in top_attribs[:3]:
+            direction = "elevating" if item["supports_attack"] else "reducing"
+            reasons.append(f"{item['feature']}={item['raw_value']} ({direction} attack probability by {item['percentage_impact']}%)")
+
+        summary = f"Flow classified as {decision_str} (p={p_ddos:.3f}) primarily due to: {'; '.join(reasons)}."
+
+        return {
+            "prediction": pred_label,
+            "decision": decision_str,
+            "probability": round(p_ddos, 4),
+            "base_bias": round(self.bias, 4),
+            "logit_z": round(z, 4),
+            "top_features": top_attribs,
+            "summary": summary
+        }
+
+
+class StreamingNaiveBayes:
+    """Online Gaussian Naive Bayes with Welford running variance updates."""
+    def __init__(self, feature_names: List[str]):
+        self.feature_names = feature_names
+        self.d = len(feature_names)
+        self.class_counts = {0: 0, 1: 0}
+        self.means = {0: [0.0]*self.d, 1: [0.0]*self.d}
+        self.m2 = {0: [0.0]*self.d, 1: [0.0]*self.d}
+
+    def fit_batch(self, X: List[List[float]], y: List[int]):
+        for xi, yi in zip(X, y):
+            self.update(xi, yi)
+
+    def update(self, x: List[float], y: int):
+        self.class_counts[y] += 1
+        n = self.class_counts[y]
+        for j in range(self.d):
+            delta = x[j] - self.means[y][j]
+            self.means[y][j] += delta / n
+            delta2 = x[j] - self.means[y][j]
+            self.m2[y][j] += delta * delta2
+
+    def predict_proba(self, x: List[float]) -> float:
+        total = self.class_counts[0] + self.class_counts[1]
+        if total == 0:
+            return 0.5
+        prior0 = math.log(max(1, self.class_counts[0]) / total)
+        prior1 = math.log(max(1, self.class_counts[1]) / total)
+        log_lik0 = prior0
+        log_lik1 = prior1
+        for j in range(self.d):
+            var0 = max(1e-4, self.m2[0][j] / max(1, self.class_counts[0] - 1))
+            var1 = max(1e-4, self.m2[1][j] / max(1, self.class_counts[1] - 1))
+            diff0 = x[j] - self.means[0][j]
+            diff1 = x[j] - self.means[1][j]
+            log_lik0 += -0.5 * math.log(2 * math.pi * var0) - (diff0 * diff0) / (2 * var0)
+            log_lik1 += -0.5 * math.log(2 * math.pi * var1) - (diff1 * diff1) / (2 * var1)
+        log_diff = max(-50.0, min(50.0, log_lik1 - log_lik0))
+        return 1.0 / (1.0 + math.exp(-log_diff))
+
+    def predict(self, x: List[float]) -> int:
+        return 1 if self.predict_proba(x) >= 0.50 else 0
+
+    def evaluate(self, X: List[List[float]], y: List[int]) -> Dict:
+        tp = fp = tn = fn = 0
+        for xi, yi in zip(X, y):
+            pred = self.predict(xi)
+            if yi == 1 and pred == 1: tp += 1
+            elif yi == 0 and pred == 1: fp += 1
+            elif yi == 0 and pred == 0: tn += 1
+            elif yi == 1 and pred == 0: fn += 1
+        tot = tp + fp + tn + fn
+        return {
+            "accuracy": (tp + tn) / max(1, tot),
+            "precision": tp / max(1, tp + fp),
+            "recall": tp / max(1, tp + fn),
+            "f1": (2 * tp) / max(1, 2 * tp + fp + fn),
+            "fpr": fp / max(1, fp + tn),
+            "fnr": fn / max(1, fn + tp)
+        }
+
+
+class StreamingPerceptron:
+    """Online Margin Perceptron with causal online scaling."""
+    def __init__(self, feature_names: List[str], lr: float = 0.05):
+        self.feature_names = feature_names
+        self.d = len(feature_names)
+        self.lr = lr
+        self.weights = [0.0] * self.d
+        self.bias = 0.0
+        self.scaler = StandardScaler()
+
+    def fit_batch(self, X: List[List[float]], y: List[int], epochs: int = 20):
+        self.scaler.fit(X)
+        X_scaled = self.scaler.transform(X)
+        for _ in range(epochs):
+            for xi, yi in zip(X_scaled, y):
+                target = 1 if yi == 1 else -1
+                score = self.bias + sum(w * x for w, x in zip(self.weights, xi))
+                if target * score <= 0:
+                    for j in range(self.d):
+                        self.weights[j] += self.lr * target * xi[j]
+                    self.bias += self.lr * target
+
+    def predict(self, x_raw: List[float]) -> int:
+        xi = self.scaler.transform_row(x_raw)
+        score = self.bias + sum(w * x for w, x in zip(self.weights, xi))
+        return 1 if score >= 0 else 0
+
+    def evaluate(self, X: List[List[float]], y: List[int]) -> Dict:
+        tp = fp = tn = fn = 0
+        for xi, yi in zip(X, y):
+            pred = self.predict(xi)
+            if yi == 1 and pred == 1: tp += 1
+            elif yi == 0 and pred == 1: fp += 1
+            elif yi == 0 and pred == 0: tn += 1
+            elif yi == 1 and pred == 0: fn += 1
+        tot = tp + fp + tn + fn
+        return {
+            "accuracy": (tp + tn) / max(1, tot),
+            "precision": tp / max(1, tp + fp),
+            "recall": tp / max(1, tp + fn),
+            "f1": (2 * tp) / max(1, 2 * tp + fp + fn),
+            "fpr": fp / max(1, fp + tn),
+            "fnr": fn / max(1, fn + tp)
+        }
+
